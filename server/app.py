@@ -18,11 +18,23 @@ db.init_app(app)
 def index():
     return 'INDEX'
 
-@app.route('/messages')
+@app.route('/messages', methods=['GET', 'POST'])
 def messages():
-    return ''
+    if request.method == 'GET':
+        messages = []
 
-@app.route('/messages/<int:id>')
+        for message in Message.query.all():
+            messages.append(message.to_dict())
+
+        response = make_response(messages, 200)
+        return response
+    
+    elif request.method == 'POST':
+        new_message = Message(
+            body: request.get_json()
+            
+        )
+@app.route('/messages/<int:id>', methods = ['PATCH', 'DELETE'])
 def messages_by_id(id):
     return ''
 
