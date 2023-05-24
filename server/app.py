@@ -27,7 +27,6 @@ def messages():
             messages.append(message.to_dict())
 
         response = make_response(messages, 200)
-        return response
     
     elif request.method == 'POST':
         data = request.get_json()
@@ -41,28 +40,31 @@ def messages():
         db.session.commit()
 
         response = make_response(new_message.to_dict(), 201)
-        return response
+    
+    return response
 
 @app.route('/messages/<int:id>', methods = ['PATCH', 'DELETE'])
 def messages_by_id(id):
-
     message = Message.query.filter(Message.id == id).first()
 
     if request.method == 'PATCH':
-        for attr in message.getattr():
-            setattr(message, attr, )
+        data = request.get_json()
+
+        for attr in data:
+            setattr(message, attr, data[attr])
+
+        db.session.add(message)
+        db.session.commit()
+
+        response = make_response(message.to_dict(), 200)
 
     elif request.method == 'DELETE':
         db.sesion.delete(message)
         db.session.commit()
 
-        response_body = {
-            "successfully-deleted": True,
-            "Message": "Message successfully deleted"
-        }
-        response = make_response(response_body, 200)
-        return response
-
+        response = make_response(jsonify({"deleted": True}), 200)
+    
+    return response
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
